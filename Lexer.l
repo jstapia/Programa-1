@@ -2,35 +2,22 @@
   #include <stdio.h>
   #include <string.h>
   #include <stdlib.h>
-  
-typedef struct _token{
-    int clase;
-    char valor[32];
-    int line;
-} token;
-
-token TOKEN;
-
-enum clase {ID=1, NUM, CAD,CHAR};
-
-void error(char *s);
-%}
-
+  void error (char *s)
+}
+%option noyywrap
 %option yylineno
 %s COMENTARIO
+
 letra [a-zA-Z]
-num [0-9]
-letra_ {letra}|_
+num [0-9]+
 entero ({num})+
 real {num}*"."{num}+|{num}+"."{num}*
-arreglo {num}*|
-id {letra}(_{num})*
+id [{letra}][{letra}|{num}]*
 cadena {letra}{letra}+
 caracter [>|<|>=|<=|<>|=]
 oparit [[+|-|*|/]
-base {entero|real|caracter}
-tipo {base}*
-boleano [e bool o e bool | e bool y e bool | no e bool | ( e bool )]
+
+
 %%
 "estructura" {return ESTRUCTURA;}
 "inicio" {return INICIO;}
@@ -39,6 +26,7 @@ boleano [e bool o e bool | e bool y e bool | no e bool | ( e bool )]
 "real" {return REAL;}
 "dreal" {return DREAL;}
 "sin" {return SIN;}
+"car" {return CAR}
 "si"  {return SI;}
 "def" {return DEF;}
 "entonces" {return ENTONCES;}
@@ -77,30 +65,23 @@ boleano [e bool o e bool | e bool y e bool | no e bool | ( e bool )]
 "," {return COMA;}
 ":" {return DOSP;}
 ";" {return PYC;}
+
 {num} {
-        TOKEN.clase = NUM;
-        strcpy(TOKEN.valor, yytext);
-        TOKEN.line = yylineno;
-        return NUM
+        strcpy(yylval.dir,yytext);
+           return NUM;
       }
 {id} {
-            TOKEN.clase = ID;
-            strcpy(TOKEN.valor, yytext);
-            TOKEN.line = yylineno;
-            return ID;
+            strcpy(yylval.dir,yytext);
+           return ID;
       }
 
 {cadena} {
-            TOKEN.clase = CAD;
-            strcpy(TOKEN.valor, yytext);
-            TOKEN.line = yylineno;
-            return CAD;
+            strcpy(yylval.dir,yytext);
+           return CADENA;
       }
 {caracter} {
-            TOKEN.clase = CHAR;
-            strcpy(TOKEN.valor, yytext);
-            TOKEN.line = yylineno;
-            return CHAR;
+            strcpy(yylval.dir,yytext);
+           return CARACTER;
       }
 [ \t\n\r] {/* Ignora los espacios en blanco*/}
 .   {error(yytext);}
@@ -112,24 +93,4 @@ int yywrap(){
 
 void error(char *s){
     printf("Error léxico: %s, en la línea %d\n",s,yylineno);
-}
-
-int main(int argc, char **argv){
-    FILE *f;
-    if(argc<2){
-        printf("Falta archivo\n");
-        exit(-1);
-    }
-    f = fopen(argv[1],"r");
-    if(!f){
-        printf("No se puede abrir el archivo\n");
-        exit(-1);
-    }
-    yyin = f;
-    int tok = yylex();
-    while(tok != 0){
-        printf("%d\n",tok);
-        tok = yylex();
-    }    
-    return 0;
 }
