@@ -30,8 +30,7 @@ caracter [>|<|>=|<=|<>|=]
 oparit [[+|-|*|/]
 base {entero|real|caracter}
 tipo {base}*
-boleano e bool o e bool | e bool y e bool | no e bool | ( e bool )| relacional |"verdadero"|"falso"
-
+boleano [e bool o e bool | e bool y e bool | no e bool | ( e bool )]
 %%
 "estructura" {return ESTRUCTURA;}
 "inicio" {return INICIO;}
